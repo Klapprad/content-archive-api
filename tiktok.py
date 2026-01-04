@@ -135,7 +135,7 @@ def health():
 ##################################### Hauptprogramm ###########################
     # Startet Flask
     # debug=True zeigt Fehlermeldungen
-    # port=5001: Server läuft auf Port 5001, kann bei Problemen angepasst werden
+    # port=5001 <- server läuft auf Port 5001, kann bei Problemen angepasst werden
 
 if __name__ == '__main__':
     print(f"Downloads werden gespeichert in: {DOWNLOAD_DIR}")
