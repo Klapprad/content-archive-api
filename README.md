@@ -10,7 +10,7 @@ Entwickelt für eine soziologische Abschlussarbeit zur systematischen Analyse vo
 
 ## Packages und Features
 - **Backend**: Python Flask REST API
-- **Filterfunktion** @username und Start-, Enddatum (YYYY-MM-DD)
+- **Filterfunktion** nach @username sowie Einstellungsdatum (Start- und Enddatum)
 - **Video-Download** via yt-dlp video extraktion
 - **Transkription** (geplant für Textmining/Speech-to-Text)
 - **Analyse** (geplant LLM Integration)
