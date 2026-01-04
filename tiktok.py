@@ -28,13 +28,13 @@ def date_filter(info, *, incomplete, start_date=None, end_date=None):
     if start_date:
         start = datetime.strptime(start_date, '%Y-%m-%d')
         if video_date < start:
-            return 'Video ist zu alt'  # Video wird übersprungen
+            return 'davor'  # Video wird übersprungen
 
     # Filter nach end_date
     if end_date:
         end = datetime.strptime(end_date, '%Y-%m-%d')
         if video_date > end:
-            return 'Video ist zu neu'  # Video wird übersprungen
+            return 'danach'  # Video wird übersprungen
 
     ####None = Video fällt in den Zeitraum und wird heruntergeladen
     return None
