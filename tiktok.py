@@ -129,7 +129,7 @@ def download_user_videos():
 ##Failsafe
 @app.route('/health', methods=['GET'])
 def health():
-    return jsonify({'status': 'ok'}), 200
+    return jsonify({'status': 'up'}), 200
 
 
 ##################################### Hauptprogramm ###########################
