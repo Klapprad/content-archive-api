@@ -139,8 +139,7 @@ def health():
 
 if __name__ == '__main__':
     print(f"Downloads werden gespeichert in: {DOWNLOAD_DIR}")
-    print("API läuft auf http://localhost:5001")
-    print("\nBeispiel:")
+    print("API http://localhost:5001")
     print('curl -X POST http://localhost:5001/download/user -H "Content-Type: application/json" -d \'{"username":"USERNAME","start_date":"2024-01-01","end_date":"2024-12-31"}\'')
 
     app.run(debug=True, host='0.0.0.0', port=5001)
