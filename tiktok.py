@@ -9,9 +9,11 @@ from datetime import datetime
 app = Flask(__name__)
 
 # Pfad für die Downloads
-DOWNLOAD_DIR = "./downloads"
-os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+# DOWNLOAD_DIR = "/media/usb/tiktok"            ###für usb
+#DOWNLOAD_DIR = "./downloads"
+#os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
+DOWNLOAD_DIR = "/home/tom/Desktop/tiktok"
 ##########################FILTERFUNKTION #############################################################
 # Args:
     #incomplete <- flag ob Download noch läuft
@@ -81,11 +83,10 @@ def download_user_videos():
 
     # dlp konfig
     ydl_opts = {
-        'format': 'best',  # Beste verfügbare Qualität
-        # Dateiname-Template: Datum_Titel.Endung (z.B. 20240115_MeinVideo.mp4)
+        'format': 'best',
         'outtmpl': os.path.join(user_dir, '%(upload_date)s_%(title)s.%(ext)s'),
-        'ignoreerrors': True,  # Bei Fehlern weitermachen statt abzubrechen
-        'writeinfojson': True,  # JSON-Datei mit Video-Metadaten speichern
+        'ignoreerrors': True,
+        'writeinfojson': True,  # Jason abspeichern, False wenn nicht
     }
 
     #### Zeitfilter zum Request für jedes Video
@@ -98,7 +99,7 @@ def download_user_videos():
             end_date=end_date
         )
 
-    # TikTok-Profil-URL zusammenbauen
+    # tiktok URL zusammenbauen
     url = f'https://www.tiktok.com/@{username}'
 
     try:
@@ -136,19 +137,19 @@ def download_user_videos():
         }), 500
 
 
-##Failsafe API Health check
+##Failsafe API läuft
 @app.route('/health', methods=['GET'])
 def health():
 
     return jsonify({'status': 'up'}), 200
 
-
-# Hauptprogramm - wird nur ausgeführt wenn Skript direkt gestartet wird
+########################################################################
+###############################  HAUPTPROGRAMM ###########################
     # Startet Flask
     # debug=True zeigt Fehlermeldungen
     # port=5001 <- server läuft auf Port 5001, kann bei Problemen angepasst werden
 
 if __name__ == '__main__':
     print("Skript läuft")
-    
+
     app.run(debug=True, host='0.0.0.0', port=5001)
