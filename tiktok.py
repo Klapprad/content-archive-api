@@ -1,9 +1,9 @@
 #####HEADDER
 #### Librarys laden
-from flask import Flask, request, jsonify           # <- API Framework
-import yt_dlp                                       # <- Git downloader für Videos
+from flask import Flask, request, jsonify
+import yt_dlp
 import os
-from datetime import datetime                       # <- brauchen wir für den Datumsfilter
+from datetime import datetime
 
 ######Flask <- empfängt request und gibt an die funktionen weiter, die dann dlp tool aufrufen
 app = Flask(__name__)
@@ -13,45 +13,54 @@ DOWNLOAD_DIR = "./downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
 ##########################FILTERFUNKTION #############################################################
+# Args:
+    #incomplete <- flag ob Download noch läuft
+    #start_date
+    #end_date
+
+#Returns:
+    #None <- Video behalten
+    #String wenn Video übersprungen wird wegen Filter
+
+
 def date_filter(info, *, incomplete, start_date=None, end_date=None):
-    ####extrahiert Upload_date YYYYMMDD
-    upload_date = info.get('upload_date')
 
+    upload_date = info.get('upload_date')           # Datum aus Metadaten holen
 
-    if not upload_date:             ###falls kein Datum vorhanden trotzdem runterladen
+    if not upload_date:                             # kein Datum = video skippen
         return None
 
     #daytime conversion
     video_date = datetime.strptime(upload_date, '%Y%m%d')
 
-    # Filter für start_date
+    # Filter für start
     if start_date:
         start = datetime.strptime(start_date, '%Y-%m-%d')
         if video_date < start:
-            return 'davor'  # Video wird übersprungen
+            return 'davor'      # wird übersprungen
 
-    # Filter nach end_date
+    # Filter für ende
     if end_date:
         end = datetime.strptime(end_date, '%Y-%m-%d')
         if video_date > end:
-            return 'danach'  # Video wird übersprungen
+            return 'danach'     # wird übersprungen
 
-    ####None = Video fällt in den Zeitraum und wird heruntergeladen
+    ####None = Video fällt in den Zeitraum und wird runtergeladen
     return None
 
 ######################### USER CONTEND ##################################################
-@app.route('/download/user', methods=['POST'])
+@app.route('/download/user', methods=['POST'])   # API-Endpunkt lädt Videos des users
 def download_user_videos():
     data = request.get_json()
 
     ##### failsafe
     if not data or 'username' not in data:
-        return jsonify({'error': 'Username eingeben'}), 400
+        return jsonify({'error': 'Username fehlt'}), 400
 
-    ###### request mit parametern:
-    username = data['username']
-    start_date = data.get('start_date')
-    end_date = data.get('end_date')
+    ###### Parameter für downlod aus request:
+    username = data['username']             # muss
+    start_date = data.get('start_date')     # optional mit None
+    end_date = data.get('end_date')         # optional mit None
 
     # failsafe Format YYYY-MM-DD
     if start_date:
@@ -70,17 +79,18 @@ def download_user_videos():
     user_dir = os.path.join(DOWNLOAD_DIR, username)
     os.makedirs(user_dir, exist_ok=True)
 
-    # Konfiguration für yt-dlp
+    # dlp konfig
     ydl_opts = {
         'format': 'best',  # Beste verfügbare Qualität
-        # Dateiname: 20241218_Videotitel.mp4
+        # Dateiname-Template: Datum_Titel.Endung (z.B. 20240115_MeinVideo.mp4)
         'outtmpl': os.path.join(user_dir, '%(upload_date)s_%(title)s.%(ext)s'),
-        'ignoreerrors': True,  # Bei Fehler weitermachen, nicht abbrechen
-        'writeinfojson': True,  # Metadaten als .json Datei speichern
+        'ignoreerrors': True,  # Bei Fehlern weitermachen statt abzubrechen
+        'writeinfojson': True,  # JSON-Datei mit Video-Metadaten speichern
     }
 
     #### Zeitfilter zum Request für jedes Video
     if start_date or end_date:
+        # Lambda-Funktion die für jedes Video aufgerufen wird
         ydl_opts['match_filter'] = lambda info, incomplete: date_filter(
             info,
             incomplete=incomplete,
@@ -88,18 +98,17 @@ def download_user_videos():
             end_date=end_date
         )
 
-    #### URL mit Usernamen vervcollständingen
+    # TikTok-Profil-URL zusammenbauen
     url = f'https://www.tiktok.com/@{username}'
 
     try:
+        ## Downloars Liste
         downloaded_videos = []
 
-        ###download mit dlp
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)            # extract_info holt  infos und lädt runter
+            info = ydl.extract_info(url, download=True)        # extract_info holt  infos und lädt runter
 
-
-            if 'entries' in info:                               # entries = alle videos des Users
+            if 'entries' in info:                           # entries = alle videos des Users
                 for entry in info['entries']:
                     if entry:
                         downloaded_videos.append({
@@ -119,27 +128,27 @@ def download_user_videos():
                 'videos': downloaded_videos             # Liste der downloads
             }), 200
 
-    except Exception as e:                      #Fehlermeldung
+    except Exception as e:                      #Fehlermedlung
         return jsonify({
             'status': 'error',
             'username': username,
             'error': str(e)
         }), 500
 
-##Failsafe
+
+##Failsafe API Health check
 @app.route('/health', methods=['GET'])
 def health():
+
     return jsonify({'status': 'up'}), 200
 
 
-##################################### Hauptprogramm ###########################
+# Hauptprogramm - wird nur ausgeführt wenn Skript direkt gestartet wird
     # Startet Flask
     # debug=True zeigt Fehlermeldungen
     # port=5001 <- server läuft auf Port 5001, kann bei Problemen angepasst werden
 
 if __name__ == '__main__':
-    print(f"Downloads werden gespeichert in: {DOWNLOAD_DIR}")
-    print("API http://localhost:5001")
-    print('curl -X POST http://localhost:5001/download/user -H "Content-Type: application/json" -d \'{"username":"USERNAME","start_date":"2024-01-01","end_date":"2024-12-31"}\'')
-
+    print("Skript läuft")
+    
     app.run(debug=True, host='0.0.0.0', port=5001)
