@@ -10,10 +10,10 @@ app = Flask(__name__)
 
 # Pfad für die Downloads
 # DOWNLOAD_DIR = "/media/usb/tiktok"            ###für usb
-#DOWNLOAD_DIR = "./downloads"
-#os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+#DOWNLOAD_DIR = "/home/tom/Desktop/tiktok"      ###
+DOWNLOAD_DIR = "./downloads"
+os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
-DOWNLOAD_DIR = "/home/tom/Desktop/tiktok"
 ##########################FILTERFUNKTION #############################################################
 # Args:
     #incomplete <- flag ob Download noch läuft
