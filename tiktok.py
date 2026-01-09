@@ -149,7 +149,30 @@ def health():
     # debug=True zeigt Fehlermeldungen
     # port=5001 <- server läuft auf Port 5001, kann bei Problemen angepasst werden
 
+#if __name__ == '__main__':
+#    print("Skript läuft")
+
+#    app.run(debug=False, host='0.0.0.0', port=5001)
+
+
+#############################    Version 2
+#####################           sucht freien Port selbst
+
+import socket
+
+
+def get_free_port(start_port):
+    port = start_port
+    while True:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            if s.connect_ex(('localhost', port)) != 0:
+                return port
+            port += 1
+
+
 if __name__ == '__main__':
+    free_port = get_free_port(5001)                 # sucht ab port...
     print("Skript läuft")
 
-    app.run(debug=False, host='0.0.0.0', port=5001)
+
+    app.run(debug=False, host='0.0.0.0', port=free_port)
